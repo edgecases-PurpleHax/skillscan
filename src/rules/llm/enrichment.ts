@@ -35,7 +35,7 @@ async function callClaude(content: string, config: LLMConfig): Promise<Finding[]
   const model = config.model ?? 'claude-sonnet-5';
   const response = await client.messages.create({
     model,
-    max_tokens: 2048,
+    max_tokens: 4096,
     system: SYSTEM_PROMPT,
     messages: [{ role: 'user', content: `Analyze this skill file:\n\n${content}` }],
   });

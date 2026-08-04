@@ -10,7 +10,7 @@ const CORPUS_DIR = resolve(__dirname, '..', 'test', 'corpus');
 interface CorpusEntry {
   file: string;
   label: 'malicious' | 'benign';
-  difficulty: 'obvious' | 'moderate' | 'subtle' | null;
+  difficulty: 'obvious' | 'moderate' | 'subtle' | 'real-world' | null;
   categories: string[];
   expectedRules: string[];
   llmOnly: boolean;
