@@ -1,0 +1,43 @@
+name: SkillScan
+
+on:
+  push:
+    paths:
+      - '**/*.md'
+      - 'skills/**'
+      - '.claude/**'
+      - 'skillscan.yml'
+  pull_request:
+    paths:
+      - '**/*.md'
+      - 'skills/**'
+      - '.claude/**'
+      - 'skillscan.yml'
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    permissions:
+      security-events: write  # required for SARIF upload
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install SkillScan
+        run: npm install -g skillscan
+
+      - name: Run SkillScan
+        run: skillscan scan --sarif --json
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}  # optional — remove if not using LLM enrichment
+
+      - name: Upload SARIF to GitHub Security tab
+        if: always()
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: .skillscan/skillscan-report.sarif

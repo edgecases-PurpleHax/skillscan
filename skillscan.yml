@@ -1,0 +1,21 @@
+scan:
+  paths:
+    - .claude/skills
+    - skills
+    - .claude
+
+quality_gate:
+  fail_on: critical
+
+rules: {}
+
+# Uncomment to enable LLM enrichment:
+# llm:
+#   provider: claude
+#   model: claude-sonnet-5
+
+output:
+  formats:
+    - terminal
+    - sarif
+  output_dir: .skillscan
