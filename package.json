@@ -6,11 +6,40 @@
   "bin": {
     "skillscan": "./dist/cli/index.js"
   },
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "build": "tsc",
     "dev": "tsx src/cli/index.ts",
     "start": "node dist/cli/index.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm run build"
+  },
+  "keywords": [
+    "security",
+    "claude",
+    "claude-code",
+    "prompt-injection",
+    "skill",
+    "scanner",
+    "static-analysis",
+    "sarif"
+  ],
+  "author": "purplehaxttv",
+  "license": "SEE LICENSE IN LICENSE",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/edgecases-PurpleHax/skillscan.git"
+  },
+  "homepage": "https://github.com/edgecases-PurpleHax/skillscan#readme",
+  "bugs": {
+    "url": "https://github.com/edgecases-PurpleHax/skillscan/issues"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.54.0",
