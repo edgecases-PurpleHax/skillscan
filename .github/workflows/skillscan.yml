@@ -8,6 +8,7 @@ on:
       - '.claude/**'
       - 'skillscan.yml'
       - 'src/**'
+      - '.github/workflows/skillscan.yml'
   pull_request:
     paths:
       - '**/*.md'
@@ -15,6 +16,8 @@ on:
       - '.claude/**'
       - 'skillscan.yml'
       - 'src/**'
+      - '.github/workflows/skillscan.yml'
+  workflow_dispatch:
 
 jobs:
   scan:
