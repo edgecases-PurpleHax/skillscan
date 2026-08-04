@@ -306,13 +306,18 @@ function connectSSE() {
   const es = new EventSource('/events');
   es.addEventListener('scan-complete', (e) => {
     currentResults = JSON.parse(e.data);
-    render();
     scanning = false;
     document.getElementById('rescan-btn').textContent = 'Rescan';
+    render();
   });
   es.addEventListener('scanning', () => {
     scanning = true;
     document.getElementById('rescan-btn').innerHTML = '<span class="spinner"></span>';
+    const badge = document.getElementById('gate-badge');
+    badge.textContent = 'Scanning...';
+    badge.className = 'gate-badge';
+    badge.style.background = 'rgba(99,102,241,.15)';
+    badge.style.color = 'var(--accent)';
   });
   es.onerror = () => {
     document.getElementById('live-dot').classList.add('stale');
@@ -353,7 +358,7 @@ function render() {
 function renderFiles() {
   const r = currentResults;
   const container = document.getElementById('file-list');
-  let html = \`<div class="file-item all-files-item \${selectedFile==='all'?'active':''}" onclick="selectFile('all')">
+  let html = \`<div class="file-item all-files-item \${selectedFile==='all'?'active':''}" data-path="all" onclick="selectFile(this.dataset.path)">
     <span class="file-name">All files</span>
     <span class="file-count">\${r.totalFindings}</span>
   </div>\`;
@@ -361,7 +366,7 @@ function renderFiles() {
     const name = f.filePath.replace(/\\\\/g,'/').split('/').slice(-2).join('/');
     const active = selectedFile === f.filePath ? 'active' : '';
     const hasF = f.findings.length > 0 ? 'has-findings' : '';
-    html += \`<div class="file-item \${active} \${hasF}" onclick="selectFile(\${JSON.stringify(f.filePath)})">
+    html += \`<div class="file-item \${active} \${hasF}" data-path="\${esc(f.filePath)}" onclick="selectFile(this.dataset.path)">
       <span class="file-name" title="\${esc(f.filePath)}">\${esc(name)}</span>
       <span class="file-count">\${f.findings.length}</span>
     </div>\`;
@@ -492,7 +497,17 @@ function esc(s) {
 (async () => {
   connectSSE();
   currentResults = await fetchResults();
-  if (currentResults) render();
+  if (currentResults) {
+    render();
+  } else {
+    const badge = document.getElementById('gate-badge');
+    badge.textContent = 'Scanning...';
+    badge.className = 'gate-badge';
+    badge.style.background = 'rgba(99,102,241,.15)';
+    badge.style.color = 'var(--accent)';
+    document.getElementById('findings-list').innerHTML =
+      \`<div class="empty-state"><div class="icon" style="font-size:32px"><span class="spinner" style="width:32px;height:32px;border-width:3px"></span></div><h3 style="margin-top:16px">Running initial scan...</h3><p>LLM enrichment may take up to 30 seconds.</p></div>\`;
+  }
 })();
 </script>
 </body>

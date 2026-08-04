@@ -101,15 +101,7 @@ export async function runLLMAnalysis(
       remediation: f.remediation ?? 'Review the flagged content manually.',
     }));
   } catch (err) {
-    return [
-      {
-        ruleId: 'SKILL-LLM-ERROR',
-        ruleName: 'LLM Analysis Error',
-        severity: 'info',
-        category: 'injection',
-        message: `LLM analysis failed: ${err instanceof Error ? err.message : String(err)}`,
-        remediation: 'Check your API key and provider configuration.',
-      },
-    ];
+    process.stderr.write(`[skillscan] LLM analysis error: ${err instanceof Error ? err.message : String(err)}\n`);
+    return [];
   }
 }

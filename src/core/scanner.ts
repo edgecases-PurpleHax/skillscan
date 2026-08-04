@@ -52,7 +52,12 @@ export async function scan(config: ScanConfig, cwd: string): Promise<ScanResult>
 
     if (hasLLM && config.llm) {
       const llmFindings = await runLLMAnalysis(content, config.llm);
-      findings.push(...llmFindings);
+      for (const lf of llmFindings) {
+        const isDuplicate = lf.line != null && findings.some(
+          (sf) => sf.line != null && Math.abs(sf.line - lf.line!) <= 1 && sf.category === lf.category,
+        );
+        if (!isDuplicate) findings.push(lf);
+      }
     }
 
     findings.sort((a, b) => SEVERITY_ORDER[b.severity] - SEVERITY_ORDER[a.severity]);
