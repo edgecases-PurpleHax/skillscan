@@ -1,5 +1,11 @@
 import type { Rule, Finding, SkillContent, LLMConfig } from '../../types.js';
 
+function parseJSON(text: string): Finding[] {
+  const stripped = text.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
+  const parsed = JSON.parse(stripped);
+  return Array.isArray(parsed) ? parsed : parsed.findings ?? [];
+}
+
 const SYSTEM_PROMPT = `You are a security analyst specializing in prompt injection and LLM supply-chain attacks.
 You will be given the content of a skill file — a markdown file that instructs an AI coding agent.
 Your job is to identify security issues that static analysis may have missed.
@@ -35,7 +41,7 @@ async function callClaude(content: string, config: LLMConfig): Promise<Finding[]
   });
 
   const text = response.content.find((b) => b.type === 'text')?.text ?? '[]';
-  return JSON.parse(text);
+  return parseJSON(text);
 }
 
 async function callOpenAI(content: string, config: LLMConfig): Promise<Finding[]> {
@@ -54,8 +60,7 @@ async function callOpenAI(content: string, config: LLMConfig): Promise<Finding[]
 
   const text = response.choices[0]?.message?.content ?? '[]';
   try {
-    const parsed = JSON.parse(text);
-    return Array.isArray(parsed) ? parsed : parsed.findings ?? [];
+    return parseJSON(text);
   } catch {
     return [];
   }
