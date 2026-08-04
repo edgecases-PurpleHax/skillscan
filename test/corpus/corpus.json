@@ -333,6 +333,326 @@
       "expectedRules": [],
       "llmOnly": false,
       "description": "Legitimate new developer onboarding skill"
+    },
+    {
+      "file": "benign/real-world/orca-computer-use.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/stablyai/orca",
+      "description": "Real-world: StablyAI/Orca computer-use skill stub"
+    },
+    {
+      "file": "benign/real-world/orca-linear-tickets.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/stablyai/orca",
+      "description": "Real-world: StablyAI/Orca linear-tickets skill stub"
+    },
+    {
+      "file": "benign/real-world/orca-cli.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/stablyai/orca",
+      "description": "Real-world: StablyAI/Orca orca-cli skill stub"
+    },
+    {
+      "file": "benign/real-world/orca-emulator-android.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/stablyai/orca",
+      "description": "Real-world: StablyAI/Orca Android emulator skill stub"
+    },
+    {
+      "file": "benign/real-world/orca-emulator-ios.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/stablyai/orca",
+      "description": "Real-world: StablyAI/Orca iOS emulator skill stub"
+    },
+    {
+      "file": "benign/real-world/orca-linear.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/stablyai/orca",
+      "description": "Real-world: StablyAI/Orca orca-linear skill stub"
+    },
+    {
+      "file": "benign/real-world/orca-per-workspace-env.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/stablyai/orca",
+      "description": "Real-world: StablyAI/Orca per-workspace-env skill stub"
+    },
+    {
+      "file": "benign/real-world/orca-orchestration.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/stablyai/orca",
+      "description": "Real-world: StablyAI/Orca orchestration skill stub"
+    },
+    {
+      "file": "benign/real-world/ensemble-solving.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/mhattingpete/claude-skills-marketplace",
+      "description": "Real-world: mhattingpete ensemble-solving skill"
+    },
+    {
+      "file": "benign/real-world/feature-planning.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/mhattingpete/claude-skills-marketplace",
+      "description": "Real-world: mhattingpete feature-planning skill"
+    },
+    {
+      "file": "benign/real-world/git-pushing.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/mhattingpete/claude-skills-marketplace",
+      "description": "Real-world: mhattingpete git-pushing skill"
+    },
+    {
+      "file": "benign/real-world/review-implementing.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/mhattingpete/claude-skills-marketplace",
+      "description": "Real-world: mhattingpete review-implementing skill"
+    },
+    {
+      "file": "benign/real-world/test-fixing.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/mhattingpete/claude-skills-marketplace",
+      "description": "Real-world: mhattingpete test-fixing skill"
+    },
+    {
+      "file": "benign/real-world/code-reviewer.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/beshkenadze/claude-skills-marketplace",
+      "description": "Real-world: beshkenadze code-reviewer skill"
+    },
+    {
+      "file": "benign/real-world/git-worktree-workflow.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/beshkenadze/claude-skills-marketplace",
+      "description": "Real-world: beshkenadze git-worktree-workflow skill"
+    },
+    {
+      "file": "benign/real-world/python-uv.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/beshkenadze/claude-skills-marketplace",
+      "description": "Real-world: beshkenadze python-uv skill"
+    },
+    {
+      "file": "benign/real-world/typescript-advanced-types.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/beshkenadze/claude-skills-marketplace",
+      "description": "Real-world: beshkenadze typescript-advanced-types skill"
+    },
+    {
+      "file": "benign/real-world/markdown-formatter.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/beshkenadze/claude-skills-marketplace",
+      "description": "Real-world: beshkenadze markdown-formatter skill"
+    },
+    {
+      "file": "benign/real-world/ada-compliance.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/beshkenadze/claude-skills-marketplace",
+      "description": "Real-world: beshkenadze ada-compliance skill"
+    },
+    {
+      "file": "benign/real-world/skill-creator.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/beshkenadze/claude-skills-marketplace",
+      "description": "Real-world: beshkenadze skill-creator skill"
+    },
+    {
+      "file": "benign/real-world/safe-rm.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/beshkenadze/claude-skills-marketplace",
+      "description": "Real-world: beshkenadze safe-rm skill (discusses rm -rf safely)"
+    },
+    {
+      "file": "benign/real-world/api-design-principles.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/wshobson/agents",
+      "description": "Real-world: wshobson API design principles skill"
+    },
+    {
+      "file": "benign/real-world/microservices-patterns.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/wshobson/agents",
+      "description": "Real-world: wshobson microservices patterns skill"
+    },
+    {
+      "file": "benign/real-world/python-code-style.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/wshobson/agents",
+      "description": "Real-world: wshobson Python code style skill"
+    },
+    {
+      "file": "benign/real-world/python-testing-patterns.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/wshobson/agents",
+      "description": "Real-world: wshobson Python testing patterns skill"
+    },
+    {
+      "file": "benign/real-world/nodejs-backend-patterns.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/wshobson/agents",
+      "description": "Real-world: wshobson Node.js backend patterns skill"
+    },
+    {
+      "file": "benign/real-world/modern-javascript-patterns.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/wshobson/agents",
+      "description": "Real-world: wshobson modern JavaScript patterns skill"
+    },
+    {
+      "file": "benign/real-world/react-state-management.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/wshobson/agents",
+      "description": "Real-world: wshobson React state management skill"
+    },
+    {
+      "file": "benign/real-world/nextjs-app-router-patterns.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/wshobson/agents",
+      "description": "Real-world: wshobson Next.js App Router patterns skill"
+    },
+    {
+      "file": "benign/real-world/postgresql-table-design.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/wshobson/agents",
+      "description": "Real-world: wshobson PostgreSQL table design skill"
+    },
+    {
+      "file": "benign/real-world/architecture-patterns.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/wshobson/agents",
+      "description": "Real-world: wshobson architecture patterns skill"
+    },
+    {
+      "file": "benign/real-world/agentsystem-ship.md",
+      "label": "benign",
+      "difficulty": null,
+      "categories": [],
+      "expectedRules": [],
+      "llmOnly": false,
+      "source": "https://github.com/AgentSystemLabs/core",
+      "description": "Real-world: AgentSystemLabs ship pipeline skill"
     }
   ]
 }
