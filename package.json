@@ -20,6 +20,7 @@
     "start": "node dist/cli/index.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
+    "benchmark": "tsx src/benchmark.ts",
     "test:watch": "vitest",
     "prepublishOnly": "npm run typecheck && npm run build"
   },
