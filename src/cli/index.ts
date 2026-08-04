@@ -11,7 +11,7 @@ import { renderHTML } from '../reporters/html.js';
 import { ALL_RULES } from '../rules/registry.js';
 import { serve } from '../server/index.js';
 
-const VERSION = '0.1.0';
+const VERSION = '0.1.1';
 const BANNER = `SkillScan v${VERSION} Early Access`;
 
 const program = new Command();
