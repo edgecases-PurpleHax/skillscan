@@ -167,13 +167,13 @@ Severity levels follow the SonarQube model: `info`, `minor`, `major`, `critical`
 Run a one-off scan with no install:
 
 ```bash
-npx tsx src/cli/index.ts scan ./skills
+npx @purplehaxttv/skillscan scan ./skills
 ```
 
 Or install globally:
 
 ```bash
-npm install -g skillscan
+npm install -g @purplehaxttv/skillscan
 skillscan scan ./skills
 ```
 

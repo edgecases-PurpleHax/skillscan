@@ -39,6 +39,7 @@ jobs:
 
       - name: Run SkillScan
         run: npx tsx src/cli/index.ts scan --sarif --json
+        # Once published: replace above with `npx @purplehaxttv/skillscan scan --sarif --json`
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
 
