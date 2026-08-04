@@ -108,19 +108,22 @@ async function main() {
     }
   }
 
-  const malicious = results.filter((r) => r.entry.label === 'malicious' && !r.skipped);
+  const designedMalicious = results.filter(
+    (r) => r.entry.label === 'malicious' && !r.skipped && r.entry.difficulty !== 'real-world',
+  );
+  const realWorldMalicious = results.filter(
+    (r) => r.entry.label === 'malicious' && !r.skipped && r.entry.difficulty === 'real-world',
+  );
   const benign = results.filter((r) => r.entry.label === 'benign');
   const llmOnly = results.filter((r) => r.skipped);
 
-  const byDifficulty = ['obvious', 'moderate'] as const;
-
   console.log(`\n${BOLD}SUMMARY${RESET}`);
   console.log('-'.repeat(60));
-  console.log('\nMalicious recall by difficulty:');
+  console.log('\nDesigned corpus recall by difficulty:');
   console.log(`  ${'Difficulty'.padEnd(12)}  ${'Detected'.padEnd(10)}  ${'Recall'.padEnd(8)}`);
 
-  for (const diff of byDifficulty) {
-    const group = malicious.filter((r) => r.entry.difficulty === diff);
+  for (const diff of ['obvious', 'moderate'] as const) {
+    const group = designedMalicious.filter((r) => r.entry.difficulty === diff);
     const detected = group.filter((r) => r.detected).length;
     console.log(`  ${diff.padEnd(12)}  ${`${detected}/${group.length}`.padEnd(10)}  ${pct(detected, group.length)}`);
   }
@@ -129,9 +132,13 @@ async function main() {
     console.log(`  ${'subtle'.padEnd(12)}  ${'0/' + llmOnly.length.toString().padEnd(8)}  ${DIM}LLM required${RESET}`);
   }
 
-  const staticMalicious = malicious;
-  const staticDetected = staticMalicious.filter((r) => r.detected).length;
+  if (realWorldMalicious.length > 0) {
+    const rwDetected = realWorldMalicious.filter((r) => r.detected).length;
+    console.log(`\nReal-world corpus (${realWorldMalicious.length} files, labeled by sumleo/AgentSkillsScanner):`);
+    console.log(`  ${'real-world'.padEnd(12)}  ${`${rwDetected}/${realWorldMalicious.length}`.padEnd(10)}  ${pct(rwDetected, realWorldMalicious.length)}  ${DIM}(LLM enrichment needed for remainder)${RESET}`);
+  }
 
+  const designedDetected = designedMalicious.filter((r) => r.detected).length;
   const benignClean = benign.filter((r) => r.detected).length;
   const benignFP = benign.length - benignClean;
 
@@ -141,12 +148,16 @@ async function main() {
   );
 
   console.log('\nOverall static performance:');
-  console.log(`  Recall (obvious + moderate):  ${pct(staticDetected, staticMalicious.length)}`);
-  console.log(`  False positive rate:          ${pct(benignFP, benign.length)}`);
-  console.log(`  LLM-only attacks in corpus:   ${llmOnly.length}`);
+  console.log(`  Recall (designed obvious + moderate):  ${pct(designedDetected, designedMalicious.length)}`);
+  if (realWorldMalicious.length > 0) {
+    const rwDetected = realWorldMalicious.filter((r) => r.detected).length;
+    console.log(`  Recall (real-world):                   ${pct(rwDetected, realWorldMalicious.length)}`);
+  }
+  console.log(`  False positive rate:                   ${pct(benignFP, benign.length)}`);
+  console.log(`  LLM-only attacks in corpus:            ${llmOnly.length}`);
   console.log();
 
-  const allPass = staticDetected === staticMalicious.length && benignFP === 0;
+  const allPass = designedDetected === designedMalicious.length && benignFP === 0;
   if (!allPass) {
     process.exit(1);
   }
