@@ -1,4 +1,5 @@
-import { readFileSync } from 'fs';
+import { readFileSync, statSync, existsSync } from 'fs';
+import { resolve } from 'path';
 import { glob } from 'glob';
 import type { ScanConfig, ScanResult, FileScanResult, SkillContent, Severity } from '../types.js';
 import { buildRuleSet } from '../rules/registry.js';
@@ -7,10 +8,16 @@ import { evaluateQualityGate } from './quality-gate.js';
 import { SEVERITY_ORDER } from '../types.js';
 
 const SKILL_EXTENSIONS = ['**/*.md', '**/*.txt', '**/*.yml', '**/*.yaml'];
+const SKILL_EXT_PATTERN = /\.(md|txt|yml|yaml)$/i;
 
 async function resolveFiles(paths: string[], cwd: string): Promise<string[]> {
   const found = new Set<string>();
   for (const scanPath of paths) {
+    const abs = resolve(cwd, scanPath);
+    if (existsSync(abs) && statSync(abs).isFile()) {
+      if (SKILL_EXT_PATTERN.test(abs)) found.add(abs);
+      continue;
+    }
     const patterns = SKILL_EXTENSIONS.map((ext) => `${scanPath}/${ext}`);
     for (const pattern of patterns) {
       const matches = await glob(pattern, { cwd, absolute: true, ignore: ['**/node_modules/**'] });
