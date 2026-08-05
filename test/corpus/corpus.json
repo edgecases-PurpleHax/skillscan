@@ -782,37 +782,25 @@
     },
     {
       "file": "malicious/real-world/smp_acorns.md",
-      "label": "malicious",
-      "difficulty": "real-world",
+      "label": "benign",
+      "difficulty": null,
       "categories": [],
       "expectedRules": [],
       "llmOnly": false,
       "source": "skillsmp.com",
       "sourceRepo": "smp_170",
-      "attribution": "sumleo/AgentSkillsScanner (MIT) — https://github.com/sumleo/AgentSkillsScanner",
-      "patterns": [
-        "Context Leakage",
-        "Remote Code Execution",
-        "Network sniffing / Credential theft"
-      ],
-      "description": "Real-world malicious: acorns"
+      "description": "Verified benign: Acorn BBC Micro emulator testing skill (wrong file fetched — search for 'acorns' app returned emulator skill)"
     },
     {
       "file": "malicious/real-world/smp_adobesign.md",
-      "label": "malicious",
-      "difficulty": "real-world",
+      "label": "benign",
+      "difficulty": null,
       "categories": [],
       "expectedRules": [],
       "llmOnly": false,
       "source": "skillsmp.com",
       "sourceRepo": "smp_170",
-      "attribution": "sumleo/AgentSkillsScanner (MIT) — https://github.com/sumleo/AgentSkillsScanner",
-      "patterns": [
-        "Remote Code Execution",
-        "Network sniffing / Credential theft",
-        "Behavior Manipulation"
-      ],
-      "description": "Real-world malicious: adobesign"
+      "description": "Verified benign: German employment law skill about electronic signatures (wrong file fetched — unrelated to Adobe Sign)"
     },
     {
       "file": "malicious/real-world/smp_american-airlines.md",
@@ -833,38 +821,25 @@
     },
     {
       "file": "malicious/real-world/smp_amtrak.md",
-      "label": "malicious",
-      "difficulty": "real-world",
+      "label": "benign",
+      "difficulty": null,
       "categories": [],
       "expectedRules": [],
       "llmOnly": false,
       "source": "skillsmp.com",
       "sourceRepo": "smp_170",
-      "attribution": "sumleo/AgentSkillsScanner (MIT) — https://github.com/sumleo/AgentSkillsScanner",
-      "patterns": [
-        "Remote Code Execution",
-        "Network sniffing / Credential theft",
-        "Behavior Manipulation"
-      ],
-      "description": "Real-world malicious: amtrak"
+      "description": "Verified benign: Swiss geodata API skill (wrong file fetched — search for 'amtrak' returned unrelated Swiss geo skill)"
     },
     {
       "file": "malicious/real-world/smp_apple-music.md",
-      "label": "malicious",
-      "difficulty": "real-world",
+      "label": "benign",
+      "difficulty": null,
       "categories": [],
       "expectedRules": [],
       "llmOnly": false,
       "source": "skillsmp.com",
       "sourceRepo": "smp_170",
-      "attribution": "sumleo/AgentSkillsScanner (MIT) — https://github.com/sumleo/AgentSkillsScanner",
-      "patterns": [
-        "External Transmission",
-        "Context Leakage",
-        "Remote Code Execution",
-        "Network sniffing / Credential theft"
-      ],
-      "description": "Real-world malicious: apple-music"
+      "description": "Verified benign: Apple Music API documentation skill (mislabeled by sumleo/AgentSkillsScanner)"
     },
     {
       "file": "malicious/real-world/smp_audible.md",
@@ -998,21 +973,14 @@
     },
     {
       "file": "malicious/real-world/smp_coursera.md",
-      "label": "malicious",
-      "difficulty": "real-world",
+      "label": "benign",
+      "difficulty": null,
       "categories": [],
       "expectedRules": [],
       "llmOnly": false,
       "source": "skillsmp.com",
       "sourceRepo": "smp_170",
-      "attribution": "sumleo/AgentSkillsScanner (MIT) — https://github.com/sumleo/AgentSkillsScanner",
-      "patterns": [
-        "Instruction Override",
-        "Remote Code Execution",
-        "Network sniffing / Credential theft",
-        "Behavior Manipulation"
-      ],
-      "description": "Real-world malicious: coursera"
+      "description": "Verified benign: Chinese handdrawn PPT skill (wrong file fetched — search for 'coursera' returned unrelated slide generation skill)"
     },
     {
       "file": "malicious/real-world/smp_crunchyroll.md",
@@ -1146,22 +1114,14 @@
     },
     {
       "file": "malicious/real-world/smp_firebase.md",
-      "label": "malicious",
-      "difficulty": "real-world",
+      "label": "benign",
+      "difficulty": null,
       "categories": [],
       "expectedRules": [],
       "llmOnly": false,
       "source": "skillsmp.com",
       "sourceRepo": "smp_170",
-      "attribution": "sumleo/AgentSkillsScanner (MIT) — https://github.com/sumleo/AgentSkillsScanner",
-      "patterns": [
-        "External Transmission",
-        "Behavior Manipulation",
-        "Hardcoded Tokens",
-        "Remote Code Execution",
-        "Network sniffing / Credential theft"
-      ],
-      "description": "Real-world malicious: firebase"
+      "description": "Verified benign: Firebase developer guidance skill from vibeship-spawner-skills (mislabeled by sumleo/AgentSkillsScanner)"
     },
     {
       "file": "malicious/real-world/smp_freshsales.md",

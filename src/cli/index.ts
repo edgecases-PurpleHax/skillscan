@@ -11,7 +11,7 @@ import { renderHTML } from '../reporters/html.js';
 import { ALL_RULES } from '../rules/registry.js';
 import { serve } from '../server/index.js';
 
-const VERSION = '0.2.0';
+const VERSION = '0.3.0';
 const BANNER = `SkillScan v${VERSION} Early Access`;
 
 const program = new Command();
@@ -34,6 +34,8 @@ program
   .option('--llm <provider>', 'Enable LLM enrichment (claude|openai)')
   .option('--model <model>', 'LLM model to use')
   .option('--min-confidence <n>', 'Minimum LLM confidence (0-100) to include in quality gate (default: 50)', '50')
+  .option('--track', 'Enable skill integrity tracking via .skillscan-lock.json')
+  .option('--reputation', 'Enable skillsmp.com reputation check (requires SKILLSMP_API_KEY)')
   .action(async (paths: string[], opts) => {
     const cwd = process.cwd();
     const config = loadConfig(cwd, opts.config);
@@ -46,6 +48,13 @@ program
         provider: opts.llm,
         model: opts.model,
         apiKey: process.env.ANTHROPIC_API_KEY ?? process.env.OPENAI_API_KEY,
+      };
+    }
+    if (opts.track) config.track = true;
+    if (opts.reputation) {
+      config.reputation = {
+        enabled: true,
+        apiKey: process.env.SKILLSMP_API_KEY,
       };
     }
 

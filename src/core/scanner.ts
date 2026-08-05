@@ -5,6 +5,8 @@ import type { ScanConfig, ScanResult, FileScanResult, SkillContent, Severity } f
 import { buildRuleSet } from '../rules/registry.js';
 import { runLLMAnalysis } from '../rules/llm/enrichment.js';
 import { evaluateQualityGate, filterForGate } from './quality-gate.js';
+import { processTracking } from './tracker.js';
+import { checkReputation } from './reputation.js';
 import { SEVERITY_ORDER } from '../types.js';
 
 const SKILL_EXTENSIONS = ['**/*.md', '**/*.txt', '**/*.yml', '**/*.yaml'];
@@ -35,13 +37,17 @@ function loadSkill(filePath: string): SkillContent {
 export async function scan(config: ScanConfig, cwd: string): Promise<ScanResult> {
   const start = Date.now();
   const hasLLM = !!config.llm;
+  const hasReputation = config.reputation?.enabled && !!config.reputation.apiKey;
   const rules = buildRuleSet(config, false);
 
   const files = await resolveFiles(config.paths, cwd);
   const fileResults: FileScanResult[] = [];
+  const rawContents = new Map<string, string>();
 
   for (const filePath of files) {
     const content = loadSkill(filePath);
+    rawContents.set(filePath, content.raw);
+
     const findings = rules.flatMap((rule) => {
       try {
         return rule.check(content);
@@ -58,6 +64,11 @@ export async function scan(config: ScanConfig, cwd: string): Promise<ScanResult>
         );
         if (!isDuplicate) findings.push(lf);
       }
+    }
+
+    if (hasReputation && config.reputation?.apiKey) {
+      const repFinding = await checkReputation(filePath, content.raw, config.reputation.apiKey);
+      if (repFinding) findings.push(repFinding);
     }
 
     findings.sort((a, b) => SEVERITY_ORDER[b.severity] - SEVERITY_ORDER[a.severity]);
@@ -80,6 +91,14 @@ export async function scan(config: ScanConfig, cwd: string): Promise<ScanResult>
   const totalFindings = allFindings.length;
   const { passed, message } = evaluateQualityGate(gateBySeverity, config.qualityGate);
 
+  let trackingAlerts: import('../types.js').TrackingAlert[] | undefined;
+  let trackingBaseline: boolean | undefined;
+  if (config.track) {
+    const tracking = processTracking(fileResults, rawContents, cwd);
+    trackingAlerts = tracking.alerts;
+    trackingBaseline = tracking.isBaseline;
+  }
+
   return {
     files: fileResults,
     totalFindings,
@@ -87,5 +106,7 @@ export async function scan(config: ScanConfig, cwd: string): Promise<ScanResult>
     passed,
     qualityGateMessage: message,
     durationMs: Date.now() - start,
+    trackingAlerts,
+    trackingBaseline,
   };
 }
