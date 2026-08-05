@@ -11,7 +11,7 @@ import { renderHTML } from '../reporters/html.js';
 import { ALL_RULES } from '../rules/registry.js';
 import { serve } from '../server/index.js';
 
-const VERSION = '0.5.0';
+const VERSION = '0.6.0';
 const BANNER = `SkillScan v${VERSION}`;
 
 const program = new Command();
@@ -37,6 +37,8 @@ program
   .option('--track', 'Enable skill integrity tracking via .skillscan-lock.json')
   .option('--reputation', 'Enable skillsmp.com reputation check (requires SKILLSMP_API_KEY)')
   .option('--db <path>', 'Path to SQLite database file', '.skillscan.db')
+  .option('--server-url <url>', 'Push findings to a remote SkillScan server (connected mode)')
+  .option('--token <token>', 'Auth token for remote server')
   .action(async (paths: string[], opts) => {
     const cwd = process.cwd();
     const config = loadConfig(cwd, opts.config);
@@ -94,6 +96,18 @@ program
       console.log(`HTML report: ${p}`);
     }
 
+    // Connected mode: push findings to remote server
+    if (opts.serverUrl) {
+      const token = opts.token ?? process.env.SKILLSCAN_TOKEN ?? '';
+      const { pushToServer } = await import('../core/remote.js');
+      try {
+        await pushToServer(result.files, { serverUrl: opts.serverUrl, token });
+        console.log(`Findings pushed to ${opts.serverUrl}`);
+      } catch (err) {
+        console.error('Failed to push to server:', err instanceof Error ? err.message : String(err));
+      }
+    }
+
     process.exit(result.passed ? 0 : 1);
   });
 
@@ -105,6 +119,7 @@ program
   .option('--llm <provider>', 'Enable LLM enrichment (claude|openai)')
   .option('--model <model>', 'LLM model to use')
   .option('--db <path>', 'Path to SQLite database file', '.skillscan.db')
+  .option('--token <token>', 'Require Bearer token auth for API endpoints')
   .action(async (paths: string[], opts) => {
     const cwd = process.cwd();
     const config = loadConfig(cwd, opts.config);
@@ -119,7 +134,8 @@ program
     }
 
     const dbPath = resolve(cwd, opts.db ?? '.skillscan.db');
-    await serve({ config, cwd, port: parseInt(opts.port, 10), dbPath });
+    const token = opts.token ?? process.env.SKILLSCAN_TOKEN;
+    await serve({ config, cwd, port: parseInt(opts.port, 10), dbPath, token });
   });
 
 program

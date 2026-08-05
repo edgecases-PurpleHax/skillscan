@@ -27,6 +27,7 @@ interface ServeOptions {
   cwd: string;
   port: number;
   dbPath: string;
+  token?: string;
 }
 
 interface ScanPayload {
@@ -56,7 +57,7 @@ function readBody(req: IncomingMessage): Promise<string> {
 }
 
 export async function serve(opts: ServeOptions): Promise<void> {
-  const { config, cwd, port, dbPath } = opts;
+  const { config, cwd, port, dbPath, token } = opts;
 
   const db: Database.Database = initDb(dbPath);
   let currentPayload: ScanPayload | null = null;
@@ -134,6 +135,12 @@ export async function serve(opts: ServeOptions): Promise<void> {
     }
   }
 
+  function isAuthorized(req: IncomingMessage): boolean {
+    if (!token) return true;
+    const auth = req.headers['authorization'];
+    return auth === `Bearer ${token}`;
+  }
+
   const dashboardHTML = buildDashboardHTML();
 
   const server = createServer(async (req: IncomingMessage, res: ServerResponse) => {
@@ -168,6 +175,27 @@ export async function serve(opts: ServeOptions): Promise<void> {
       return;
     }
 
+    if (url === '/api/scan-ingest' && req.method === 'POST') {
+      if (!isAuthorized(req)) {
+        res.writeHead(401, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Unauthorized' }));
+        return;
+      }
+      try {
+        const body = await readBody(req);
+        const { files } = JSON.parse(body) as { files: import('../types.js').FileScanResult[] };
+        const scanId = upsertScan(db, config.paths, config);
+        upsertFindings(db, scanId, files);
+        broadcast('scan-complete', currentPayload);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end('{"ok":true}');
+      } catch (err) {
+        res.writeHead(400, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: String(err) }));
+      }
+      return;
+    }
+
     if (url === '/api/review' && req.method === 'POST') {
       try {
         const body = await readBody(req);
@@ -189,6 +217,11 @@ export async function serve(opts: ServeOptions): Promise<void> {
     }
 
     if (url === '/api/reviews') {
+      if (!isAuthorized(req)) {
+        res.writeHead(401, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ error: 'Unauthorized' }));
+        return;
+      }
       const reviews = getAllReviews(db);
       res.writeHead(200, { 'Content-Type': 'application/json' });
       res.end(JSON.stringify(reviews));
@@ -199,11 +232,12 @@ export async function serve(opts: ServeOptions): Promise<void> {
     res.end(dashboardHTML);
   });
 
-  server.listen(port, '127.0.0.1', () => {
-    console.log(`\nSkillScan v0.4.0`);
+  server.listen(port, '0.0.0.0', () => {
+    console.log(`\nSkillScan v0.6.0`);
     console.log(`Dashboard: http://localhost:${port}`);
     console.log(`Database:  ${dbPath}`);
     console.log(`Watching:  ${config.paths.join(', ')}`);
+    if (token) console.log(`Auth:      token required`);
     console.log(`Press Ctrl+C to stop.\n`);
   });
 
