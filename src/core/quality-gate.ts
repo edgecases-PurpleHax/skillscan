@@ -3,7 +3,9 @@ import { SEVERITY_ORDER } from '../types.js';
 
 export function filterForGate(findings: Finding[], config: QualityGateConfig): Finding[] {
   const minConfidence = config.minConfidence ?? 50;
-  return findings.filter((f) => f.confidence === undefined || f.confidence >= minConfidence);
+  return findings.filter(
+    (f) => !f.isHotspot && (f.confidence === undefined || f.confidence >= minConfidence),
+  );
 }
 
 export function evaluateQualityGate(
