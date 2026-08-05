@@ -11,6 +11,21 @@ export interface Review {
   note?: string;
 }
 
+export interface Project {
+  id: number;
+  key: string;
+  name: string;
+  createdAt: string;
+}
+
+export interface ProjectSummary extends Project {
+  totalFindings: number;
+  unreviewedFindings: number;
+  reviewCoverage: number;
+  lastScanAt: string | null;
+  passed: boolean;
+}
+
 export type Category =
   | 'injection'
   | 'exfiltration'
