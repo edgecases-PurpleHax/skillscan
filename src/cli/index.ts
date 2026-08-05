@@ -11,7 +11,7 @@ import { renderHTML } from '../reporters/html.js';
 import { ALL_RULES } from '../rules/registry.js';
 import { serve } from '../server/index.js';
 
-const VERSION = '0.4.0';
+const VERSION = '0.5.0';
 const BANNER = `SkillScan v${VERSION}`;
 
 const program = new Command();
@@ -186,6 +186,14 @@ output:
 `;
     writeFileSync(configPath, template);
     console.log('Created skillscan.yml');
+  });
+
+program
+  .command('lsp')
+  .description('Start the Language Server Protocol server (for IDE integration)')
+  .action(async () => {
+    const { startLsp } = await import('../lsp/server.js');
+    startLsp();
   });
 
 program.parse();

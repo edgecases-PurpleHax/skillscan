@@ -1,0 +1,58 @@
+{
+  "name": "skillscan",
+  "displayName": "SkillScan",
+  "description": "SonarQube-style security scanner for Claude Code skill files — real-time diagnostics via LSP",
+  "version": "0.5.0",
+  "publisher": "purplehaxttv",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Linters",
+    "Other"
+  ],
+  "keywords": [
+    "claude",
+    "claude-code",
+    "skill",
+    "security",
+    "prompt-injection",
+    "lsp"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/edgecases-PurpleHax/skillscan.git"
+  },
+  "license": "SEE LICENSE IN LICENSE",
+  "activationEvents": [
+    "onLanguage:markdown",
+    "onLanguage:yaml",
+    "onLanguage:plaintext"
+  ],
+  "main": "./extension.js",
+  "contributes": {
+    "configuration": {
+      "title": "SkillScan",
+      "properties": {
+        "skillscan.serverPath": {
+          "type": "string",
+          "default": "skillscan",
+          "description": "Path to the skillscan CLI binary (defaults to the one on PATH)."
+        },
+        "skillscan.enableLLM": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable LLM enrichment on save (requires ANTHROPIC_API_KEY or OPENAI_API_KEY in environment)."
+        }
+      }
+    }
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.0.0",
+    "vscode-languageclient": "^10.0.0"
+  },
+  "scripts": {
+    "package": "vsce package"
+  }
+}
