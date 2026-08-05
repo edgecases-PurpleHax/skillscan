@@ -1,0 +1,18 @@
+services:
+  skillscan:
+    image: purplehaxttv/skillscan:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "7117:7117"
+    command: ["serve", "/skills", "--port", "7117", "--db", "/data/.skillscan.db"]
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - SKILLSCAN_TOKEN=${SKILLSCAN_TOKEN:-}
+    volumes:
+      - skillscan-data:/data
+      - ${SKILLS_PATH:-./.claude/skills}:/skills:ro
+
+volumes:
+  skillscan-data:

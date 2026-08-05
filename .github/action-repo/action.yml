@@ -1,0 +1,41 @@
+name: SkillScan
+description: 'Security scanner for Claude Code skill files — flags prompt injection, exfiltration, and tool abuse'
+author: 'purplehaxttv'
+
+branding:
+  icon: shield
+  color: purple
+
+inputs:
+  paths:
+    description: 'Space-separated skill file paths to scan'
+    required: false
+    default: '.claude/skills'
+  fail-on:
+    description: 'Minimum severity to fail CI (info|minor|major|critical|blocker)'
+    required: false
+    default: 'critical'
+  sarif:
+    description: 'Upload SARIF results to GitHub Security tab'
+    required: false
+    default: 'true'
+  server-url:
+    description: 'Remote SkillScan server URL for connected mode'
+    required: false
+    default: ''
+  token:
+    description: 'Auth token for remote SkillScan server'
+    required: false
+    default: ''
+
+runs:
+  using: docker
+  image: 'docker://purplehaxttv/skillscan:latest'
+  args:
+    - scan
+    - ${{ inputs.paths }}
+    - --fail-on
+    - ${{ inputs.fail-on }}
+    - --sarif
+    - --output-dir
+    - /github/workspace/.skillscan
