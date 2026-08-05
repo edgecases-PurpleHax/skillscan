@@ -30,7 +30,7 @@ inputs:
 
 runs:
   using: docker
-  image: 'docker://purplehaxttv/skillscan:latest'
+  image: 'docker://rwils83/skillscan:latest'
   args:
     - scan
     - ${{ inputs.paths }}

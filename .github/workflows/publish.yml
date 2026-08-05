@@ -87,5 +87,5 @@ jobs:
           context: .
           push: true
           tags: |
-            purplehaxttv/skillscan:latest
-            purplehaxttv/skillscan:${{ steps.version.outputs.tag }}
+            rwils83/skillscan:latest
+            rwils83/skillscan:${{ steps.version.outputs.tag }}

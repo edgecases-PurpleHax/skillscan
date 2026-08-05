@@ -1,6 +1,6 @@
 services:
   skillscan:
-    image: purplehaxttv/skillscan:latest
+    image: rwils83/skillscan:latest
     build:
       context: .
       dockerfile: Dockerfile
