@@ -11,7 +11,7 @@ import { renderHTML } from '../reporters/html.js';
 import { ALL_RULES } from '../rules/registry.js';
 import { serve } from '../server/index.js';
 
-const VERSION = '0.1.1';
+const VERSION = '0.2.0';
 const BANNER = `SkillScan v${VERSION} Early Access`;
 
 const program = new Command();
@@ -33,12 +33,14 @@ program
   .option('--fail-on <severity>', 'Minimum severity that triggers a non-zero exit (info|minor|major|critical|blocker)', 'critical')
   .option('--llm <provider>', 'Enable LLM enrichment (claude|openai)')
   .option('--model <model>', 'LLM model to use')
+  .option('--min-confidence <n>', 'Minimum LLM confidence (0-100) to include in quality gate (default: 50)', '50')
   .action(async (paths: string[], opts) => {
     const cwd = process.cwd();
     const config = loadConfig(cwd, opts.config);
 
     if (paths.length > 0) config.paths = paths;
     if (opts.failOn) config.qualityGate.failOn = opts.failOn;
+    if (opts.minConfidence) config.qualityGate.minConfidence = parseInt(opts.minConfidence, 10);
     if (opts.llm) {
       config.llm = {
         provider: opts.llm,

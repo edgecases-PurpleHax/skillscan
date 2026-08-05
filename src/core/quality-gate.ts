@@ -1,5 +1,10 @@
-import type { Severity, QualityGateConfig } from '../types.js';
+import type { Severity, QualityGateConfig, Finding } from '../types.js';
 import { SEVERITY_ORDER } from '../types.js';
+
+export function filterForGate(findings: Finding[], config: QualityGateConfig): Finding[] {
+  const minConfidence = config.minConfidence ?? 50;
+  return findings.filter((f) => f.confidence === undefined || f.confidence >= minConfidence);
+}
 
 export function evaluateQualityGate(
   bySeverity: Record<Severity, number>,

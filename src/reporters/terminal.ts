@@ -38,7 +38,18 @@ export function renderTerminal(result: ScanResult, cwd: string, banner = 'SkillS
       const icon = SEVERITY_ICON[finding.severity];
       const loc = finding.line ? chalk.gray(`:${finding.line}`) : '';
 
-      console.log(`  ${color(`${icon} [${finding.ruleId}]`)} ${color.bold(finding.ruleName)}${loc}`);
+      let confidenceTag = '';
+      if (finding.confidence !== undefined) {
+        if (finding.isHotspot || finding.confidence < 50) {
+          confidenceTag = chalk.yellow(` [HOTSPOT ${finding.confidence}%]`);
+        } else if (finding.confidence < 80) {
+          confidenceTag = chalk.yellow(` [REVIEW ${finding.confidence}%]`);
+        } else {
+          confidenceTag = chalk.red(` [${finding.confidence}% confidence]`);
+        }
+      }
+
+      console.log(`  ${color(`${icon} [${finding.ruleId}]`)} ${color.bold(finding.ruleName)}${loc}${confidenceTag}`);
       console.log(`     ${chalk.white(finding.message)}`);
       if (finding.snippet) {
         console.log(`     ${chalk.gray('↳')} ${chalk.italic.gray(finding.snippet.slice(0, 100))}`);

@@ -4,7 +4,7 @@ import { glob } from 'glob';
 import type { ScanConfig, ScanResult, FileScanResult, SkillContent, Severity } from '../types.js';
 import { buildRuleSet } from '../rules/registry.js';
 import { runLLMAnalysis } from '../rules/llm/enrichment.js';
-import { evaluateQualityGate } from './quality-gate.js';
+import { evaluateQualityGate, filterForGate } from './quality-gate.js';
 import { SEVERITY_ORDER } from '../types.js';
 
 const SKILL_EXTENSIONS = ['**/*.md', '**/*.txt', '**/*.yml', '**/*.yaml'];
@@ -65,13 +65,20 @@ export async function scan(config: ScanConfig, cwd: string): Promise<ScanResult>
   }
 
   const allFindings = fileResults.flatMap((r) => r.findings);
+  const gateFindings = filterForGate(allFindings, config.qualityGate);
+
   const bySeverity = {
     info: 0, minor: 0, major: 0, critical: 0, blocker: 0,
   } as Record<Severity, number>;
   for (const f of allFindings) bySeverity[f.severity]++;
 
+  const gateBySeverity = {
+    info: 0, minor: 0, major: 0, critical: 0, blocker: 0,
+  } as Record<Severity, number>;
+  for (const f of gateFindings) gateBySeverity[f.severity]++;
+
   const totalFindings = allFindings.length;
-  const { passed, message } = evaluateQualityGate(bySeverity, config.qualityGate);
+  const { passed, message } = evaluateQualityGate(gateBySeverity, config.qualityGate);
 
   return {
     files: fileResults,
