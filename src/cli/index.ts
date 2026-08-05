@@ -11,8 +11,8 @@ import { renderHTML } from '../reporters/html.js';
 import { ALL_RULES } from '../rules/registry.js';
 import { serve } from '../server/index.js';
 
-const VERSION = '0.3.0';
-const BANNER = `SkillScan v${VERSION} Early Access`;
+const VERSION = '0.4.0';
+const BANNER = `SkillScan v${VERSION}`;
 
 const program = new Command();
 
@@ -36,6 +36,7 @@ program
   .option('--min-confidence <n>', 'Minimum LLM confidence (0-100) to include in quality gate (default: 50)', '50')
   .option('--track', 'Enable skill integrity tracking via .skillscan-lock.json')
   .option('--reputation', 'Enable skillsmp.com reputation check (requires SKILLSMP_API_KEY)')
+  .option('--db <path>', 'Path to SQLite database file', '.skillscan.db')
   .action(async (paths: string[], opts) => {
     const cwd = process.cwd();
     const config = loadConfig(cwd, opts.config);
@@ -103,6 +104,7 @@ program
   .option('-p, --port <number>', 'Port to listen on', '7117')
   .option('--llm <provider>', 'Enable LLM enrichment (claude|openai)')
   .option('--model <model>', 'LLM model to use')
+  .option('--db <path>', 'Path to SQLite database file', '.skillscan.db')
   .action(async (paths: string[], opts) => {
     const cwd = process.cwd();
     const config = loadConfig(cwd, opts.config);
@@ -116,7 +118,8 @@ program
       };
     }
 
-    await serve({ config, cwd, port: parseInt(opts.port, 10) });
+    const dbPath = resolve(cwd, opts.db ?? '.skillscan.db');
+    await serve({ config, cwd, port: parseInt(opts.port, 10), dbPath });
   });
 
 program

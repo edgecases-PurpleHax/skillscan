@@ -1,5 +1,16 @@
 export type Severity = 'info' | 'minor' | 'major' | 'critical' | 'blocker';
 
+export type ReviewDecision = 'accepted' | 'false-positive' | 'wont-fix';
+
+export interface Review {
+  id: number;
+  findingId: number;
+  decision: ReviewDecision;
+  reviewer: string;
+  timestamp: string;
+  note?: string;
+}
+
 export type Category =
   | 'injection'
   | 'exfiltration'
@@ -9,6 +20,7 @@ export type Category =
   | 'permission-escalation';
 
 export interface Finding {
+  id?: number;
   ruleId: string;
   ruleName: string;
   severity: Severity;
@@ -19,6 +31,12 @@ export interface Finding {
   remediation: string;
   confidence?: number;   // 0-100, LLM findings only; undefined = static rule (implicitly high confidence)
   isHotspot?: boolean;   // true = needs human review, not a definitive vulnerability
+}
+
+export interface DbFinding extends Finding {
+  id: number;
+  filePath: string;
+  snippetHash: string;
 }
 
 export interface Rule {
@@ -51,6 +69,8 @@ export interface ScanResult {
   durationMs: number;
   trackingAlerts?: TrackingAlert[];
   trackingBaseline?: boolean;
+  unreviewedFindings?: number;
+  reviewCoverage?: number;
 }
 
 export interface QualityGateConfig {
