@@ -17,6 +17,8 @@ export interface Finding {
   line?: number;
   snippet?: string;
   remediation: string;
+  confidence?: number;   // 0-100, LLM findings only; undefined = static rule (implicitly high confidence)
+  isHotspot?: boolean;   // true = needs human review, not a definitive vulnerability
 }
 
 export interface Rule {
@@ -54,6 +56,7 @@ export interface QualityGateConfig {
   maxMinor?: number;
   maxMajor?: number;
   maxCritical?: number;
+  minConfidence?: number;  // LLM findings below this confidence are excluded from gate (default: 50)
 }
 
 export interface LLMConfig {

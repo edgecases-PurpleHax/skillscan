@@ -1,6 +1,6 @@
 {
   "name": "@purplehaxttv/skillscan",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "SonarQube-style security scanner for Claude Code skill files",
   "type": "module",
   "bin": {
