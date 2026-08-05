@@ -233,7 +233,7 @@ export async function serve(opts: ServeOptions): Promise<void> {
   });
 
   server.listen(port, '0.0.0.0', () => {
-    console.log(`\nSkillScan v0.6.1`);
+    console.log(`\nSkillScan v0.6.2`);
     console.log(`Dashboard: http://localhost:${port}`);
     console.log(`Database:  ${dbPath}`);
     console.log(`Watching:  ${config.paths.join(', ')}`);
