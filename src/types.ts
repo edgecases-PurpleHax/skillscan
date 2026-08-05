@@ -49,6 +49,8 @@ export interface ScanResult {
   passed: boolean;
   qualityGateMessage: string;
   durationMs: number;
+  trackingAlerts?: TrackingAlert[];
+  trackingBaseline?: boolean;
 }
 
 export interface QualityGateConfig {
@@ -65,6 +67,11 @@ export interface LLMConfig {
   apiKey?: string;
 }
 
+export interface ReputationConfig {
+  enabled: boolean;
+  apiKey?: string;
+}
+
 export interface ScanConfig {
   paths: string[];
   qualityGate: QualityGateConfig;
@@ -74,6 +81,8 @@ export interface ScanConfig {
     formats: Array<'terminal' | 'json' | 'sarif' | 'html'>;
     outputDir?: string;
   };
+  track?: boolean;
+  reputation?: ReputationConfig;
 }
 
 export const SEVERITY_ORDER: Record<Severity, number> = {
@@ -83,3 +92,9 @@ export const SEVERITY_ORDER: Record<Severity, number> = {
   critical: 3,
   blocker: 4,
 };
+
+export interface TrackingAlert {
+  filePath: string;
+  type: 'regression' | 'file-changed' | 'confidence-spike' | 'new-findings';
+  message: string;
+}

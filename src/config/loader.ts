@@ -25,6 +25,13 @@ const ConfigSchema = z.object({
     model: z.string().optional(),
     api_key: z.string().optional(),
   }).optional(),
+  tracking: z.object({
+    enabled: z.boolean().default(false),
+  }).default({}),
+  reputation: z.object({
+    enabled: z.boolean().default(false),
+    api_key: z.string().optional(),
+  }).default({}),
   output: z.object({
     formats: z.array(z.enum(['terminal', 'json', 'sarif', 'html'])).default(['terminal']),
     output_dir: z.string().optional(),
@@ -70,5 +77,12 @@ export function loadConfig(cwd: string, configPath?: string): ScanConfig {
       formats: parsed.output.formats,
       outputDir: parsed.output.output_dir,
     },
+    track: parsed.tracking.enabled,
+    reputation: parsed.reputation.enabled
+      ? {
+          enabled: true,
+          apiKey: parsed.reputation.api_key ?? process.env.SKILLSMP_API_KEY,
+        }
+      : undefined,
   };
 }

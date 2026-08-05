@@ -18,10 +18,41 @@ const SEVERITY_ICON: Record<Severity, string> = {
   blocker: '⛔',
 };
 
+const ALERT_ICON: Record<string, string> = {
+  regression: '⛔',
+  'confidence-spike': '⚠',
+  'file-changed': '~',
+  'new-findings': '⚠',
+};
+
+const ALERT_COLOR: Record<string, ChalkInstance> = {
+  regression: chalk.red,
+  'confidence-spike': chalk.yellow,
+  'file-changed': chalk.cyan,
+  'new-findings': chalk.yellow,
+};
+
 export function renderTerminal(result: ScanResult, cwd: string, banner = 'SkillScan'): void {
   console.log('');
   console.log(chalk.bold(banner) + chalk.gray(' — Security Analysis'));
   console.log(chalk.gray('─'.repeat(60)));
+
+  if (result.trackingBaseline) {
+    console.log(chalk.cyan('\n  ✔ Integrity baseline created — .skillscan-lock.json'));
+    console.log(chalk.gray('    Commit this file so future scans can detect skill changes.\n'));
+  } else if (result.trackingAlerts && result.trackingAlerts.length > 0) {
+    console.log('');
+    console.log(chalk.bold.yellow('  INTEGRITY ALERTS'));
+    for (const alert of result.trackingAlerts) {
+      const rel = relative(cwd, alert.filePath);
+      const color = ALERT_COLOR[alert.type] ?? chalk.yellow;
+      const icon = ALERT_ICON[alert.type] ?? '⚠';
+      console.log(`\n  ${color(`${icon} [${alert.type.toUpperCase()}]`)} ${chalk.bold(rel)}`);
+      console.log(`     ${chalk.white(alert.message)}`);
+    }
+    console.log('');
+    console.log(chalk.gray('─'.repeat(60)));
+  }
 
   let hasFindings = false;
 
