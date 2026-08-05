@@ -185,7 +185,61 @@ export async function serve(opts: ServeOptions): Promise<void> {
         const body = await readBody(req);
         const { files } = JSON.parse(body) as { files: import('../types.js').FileScanResult[] };
         const scanId = upsertScan(db, config.paths, config);
-        upsertFindings(db, scanId, files);
+        const dbFindings = upsertFindings(db, scanId, files);
+
+        const idMap = new Map<string, number>();
+        for (const dbf of dbFindings) {
+          idMap.set(`${dbf.filePath}:${dbf.ruleId}:${dbf.line ?? 0}:${dbf.snippetHash}`, dbf.id);
+        }
+        const filesWithIds = files.map((fr) => ({
+          ...fr,
+          findings: fr.findings.map((f) => ({
+            ...f,
+            id: idMap.get(`${fr.filePath}:${f.ruleId}:${f.line ?? 0}:${snippetHash(f)}`),
+          })),
+        }));
+
+        const bySeverity = { info: 0, minor: 0, major: 0, critical: 0, blocker: 0 };
+        let totalFindings = 0;
+        for (const fr of files) {
+          for (const f of fr.findings) {
+            totalFindings++;
+            if (f.severity in bySeverity) bySeverity[f.severity as keyof typeof bySeverity]++;
+          }
+        }
+
+        const nonHotspotCount = dbFindings.filter((d) => !d.isHotspot).length;
+        const reviewedCount = dbFindings.filter((d) => !d.isHotspot && getLatestReview(db, d.id) !== null).length;
+        const unreviewedFindings = nonHotspotCount - reviewedCount;
+        const reviewCoverage = nonHotspotCount === 0 ? 1 : reviewedCount / nonHotspotCount;
+
+        const severityOrder = ['info', 'minor', 'major', 'critical', 'blocker'];
+        const failOn = config.qualityGate?.failOn ?? 'critical';
+        const failIdx = severityOrder.indexOf(failOn);
+        const unreviewedAboveThreshold = dbFindings.filter(
+          (d) => !d.isHotspot && severityOrder.indexOf(d.severity) >= failIdx && getLatestReview(db, d.id) === null,
+        ).length;
+        const passed = unreviewedAboveThreshold === 0;
+
+        currentPayload = {
+          timestamp: new Date().toISOString(),
+          durationMs: 0,
+          totalFindings,
+          bySeverity,
+          passed,
+          qualityGateMessage: passed ? 'Quality gate passed' : `${unreviewedAboveThreshold} unreviewed finding(s) at or above ${failOn}`,
+          unreviewedFindings,
+          reviewCoverage,
+          files: filesWithIds,
+          rules: ALL_RULES.map((r) => ({
+            id: r.id,
+            name: r.name,
+            severity: r.severity,
+            category: r.category,
+            description: r.description,
+            requiresLLM: r.requiresLLM,
+          })),
+        };
         broadcast('scan-complete', currentPayload);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end('{"ok":true}');
