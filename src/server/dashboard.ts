@@ -93,7 +93,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .summary-bar {
   display: flex; gap: 12px; padding: 16px 24px;
   border-bottom: 1px solid var(--border); background: var(--surface);
-  flex-wrap: wrap;
+  flex-wrap: wrap; align-items: stretch;
 }
 .sev-card {
   flex: 1; min-width: 90px; padding: 12px 16px; border-radius: var(--radius);
@@ -110,8 +110,18 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .sev-card[data-sev="info"] { --c: var(--info); }
 .sev-card[data-sev="all"] { --c: var(--accent); }
 
+/* Coverage card */
+.coverage-card {
+  min-width: 140px; padding: 12px 16px; border-radius: var(--radius);
+  background: var(--surface2); border: 1px solid var(--border);
+}
+.coverage-card .cov-label { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 6px; }
+.coverage-bar-wrap { background: var(--border); border-radius: 999px; height: 6px; overflow: hidden; margin-bottom: 4px; }
+.coverage-bar { height: 100%; border-radius: 999px; background: var(--pass); transition: width .4s; }
+.coverage-pct { font-size: 13px; font-weight: 700; color: var(--pass); }
+
 /* ── Layout ── */
-.layout { display: flex; height: calc(100vh - 56px - 77px); }
+.layout { display: flex; height: calc(100vh - 56px - 77px - 41px); }
 .sidebar {
   width: 260px; min-width: 200px; max-width: 320px;
   border-right: 1px solid var(--border); overflow-y: auto;
@@ -120,15 +130,16 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .sidebar-header { padding: 12px 16px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--text-muted); border-bottom: 1px solid var(--border); }
 .file-item {
   padding: 8px 16px; cursor: pointer; border-left: 3px solid transparent;
-  transition: background .1s; display: flex; align-items: center; justify-content: space-between;
+  transition: background .1s; display: flex; align-items: center; justify-content: space-between; gap: 6px;
 }
 .file-item:hover { background: var(--surface2); }
 .file-item.active { background: var(--accent-glow); border-left-color: var(--accent); }
-.file-item .file-name { font-size: 12px; color: var(--text-dim); font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.file-item .file-name { font-size: 12px; color: var(--text-dim); font-family: monospace; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
 .file-item .file-count { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: var(--surface2); color: var(--text-muted); flex-shrink: 0; }
 .file-item.has-findings .file-name { color: var(--text); }
 .file-item.has-findings .file-count { background: var(--fail); color: #fff; }
 .all-files-item { border-bottom: 1px solid var(--border); margin-bottom: 4px; }
+.rereview-badge { font-size: 9px; font-weight: 800; padding: 1px 5px; border-radius: 999px; background: rgba(234,179,8,.2); color: var(--major); text-transform: uppercase; letter-spacing: .04em; flex-shrink: 0; }
 
 /* ── Main panel ── */
 .main { flex: 1; overflow-y: auto; padding: 20px 24px; }
@@ -150,12 +161,11 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .finding-card {
   border-radius: var(--radius); border: 1px solid var(--border);
   background: var(--surface); overflow: hidden; transition: border-color .15s;
-  cursor: pointer;
 }
-.finding-card:hover { border-color: var(--c); }
+.finding-card.reviewed { opacity: .65; }
 .finding-header {
   padding: 10px 14px; display: flex; align-items: center; gap: 10px;
-  background: var(--cb);
+  background: var(--cb); cursor: pointer;
 }
 .finding-card[data-sev="blocker"] { --c: var(--blocker); --cb: var(--blocker-bg); }
 .finding-card[data-sev="critical"] { --c: var(--critical); --cb: var(--critical-bg); }
@@ -170,6 +180,14 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .rule-id { font-size: 11px; font-family: monospace; color: var(--text-muted); }
 .rule-name { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
 .finding-loc { font-size: 11px; color: var(--text-muted); font-family: monospace; flex-shrink: 0; }
+.review-state-badge {
+  font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px;
+  text-transform: uppercase; letter-spacing: .04em; flex-shrink: 0;
+}
+.review-state-badge.accepted { background: rgba(34,197,94,.15); color: var(--pass); }
+.review-state-badge.false-positive { background: rgba(99,102,241,.15); color: var(--accent); }
+.review-state-badge.wont-fix { background: rgba(100,116,139,.15); color: var(--text-muted); }
+
 .finding-body { padding: 10px 14px; border-top: 1px solid var(--border); display: none; }
 .finding-body.open { display: block; }
 .finding-message { font-size: 13px; color: var(--text); margin-bottom: 8px; }
@@ -179,8 +197,30 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
   overflow-x: auto; white-space: pre; color: var(--text-dim);
   border-left: 3px solid var(--c);
 }
-.finding-fix { font-size: 12px; color: var(--text-dim); }
+.finding-fix { font-size: 12px; color: var(--text-dim); margin-bottom: 12px; }
 .finding-fix strong { color: var(--text-muted); }
+
+/* Review actions */
+.review-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin-top: 4px; }
+.review-actions label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .04em; }
+.btn-review {
+  padding: 5px 12px; border-radius: var(--radius-sm); font-size: 12px; font-weight: 600;
+  cursor: pointer; border: 1px solid var(--border); background: var(--surface2); color: var(--text);
+  transition: background .15s, border-color .15s;
+}
+.btn-review:hover { background: var(--border); }
+.btn-review.accept { border-color: var(--pass); color: var(--pass); }
+.btn-review.accept:hover { background: rgba(34,197,94,.12); }
+.btn-review.fp { border-color: var(--accent); color: var(--accent); }
+.btn-review.fp:hover { background: var(--accent-glow); }
+.btn-review.wf { border-color: var(--text-muted); color: var(--text-muted); }
+.btn-review.wf:hover { background: rgba(100,116,139,.12); }
+.review-note-input {
+  flex: 1; min-width: 160px; padding: 5px 10px; border-radius: var(--radius-sm);
+  border: 1px solid var(--border); background: var(--surface2); color: var(--text);
+  font-size: 12px; outline: none;
+}
+.review-note-input:focus { border-color: var(--accent); }
 
 .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
 .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
@@ -194,7 +234,19 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 .rules-table td { padding: 9px 12px; border-bottom: 1px solid var(--border); }
 .rules-table tr:hover td { background: var(--surface2); }
 
-/* ── Footer tabs ── */
+/* ── Audit trail ── */
+.audit-panel { display: none; padding: 20px 24px; height: calc(100vh - 56px - 77px - 41px); overflow-y: auto; }
+.audit-entry {
+  padding: 10px 14px; border-radius: var(--radius); border: 1px solid var(--border);
+  background: var(--surface); margin-bottom: 8px; font-size: 13px;
+}
+.audit-entry .audit-meta { font-size: 11px; color: var(--text-muted); margin-bottom: 4px; }
+.audit-entry .audit-decision { font-weight: 700; }
+.audit-entry .audit-decision.accepted { color: var(--pass); }
+.audit-entry .audit-decision.false-positive { color: var(--accent); }
+.audit-entry .audit-decision.wont-fix { color: var(--text-muted); }
+
+/* ── Tabs ── */
 .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); background: var(--surface); padding: 0 24px; }
 .tab { padding: 10px 14px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--text-muted); border-bottom: 2px solid transparent; transition: color .15s; }
 .tab:hover { color: var(--text); }
@@ -214,7 +266,7 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
     </svg>
     SkillScan
   </div>
-  <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(99,102,241,.15);color:var(--accent);letter-spacing:.05em;text-transform:uppercase;">v0.1 Early Access</span>
+  <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(99,102,241,.15);color:var(--accent);letter-spacing:.05em;text-transform:uppercase;">v0.4.0</span>
   <div id="gate-badge" class="gate-badge">Scanning…</div>
   <div class="header-right">
     <div class="live-dot" id="live-dot" title="Live updates active"></div>
@@ -249,11 +301,17 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
     <div class="count" id="count-info">—</div>
     <div class="label">Info</div>
   </div>
+  <div class="coverage-card">
+    <div class="cov-label">Review Coverage</div>
+    <div class="coverage-bar-wrap"><div class="coverage-bar" id="coverage-bar" style="width:0%"></div></div>
+    <span class="coverage-pct" id="coverage-pct">—</span>
+  </div>
 </div>
 
 <div class="tabs">
   <div class="tab active" id="tab-findings" onclick="switchTab('findings')">Findings</div>
   <div class="tab" id="tab-rules" onclick="switchTab('rules')">Rules Catalog</div>
+  <div class="tab" id="tab-audit" onclick="switchTab('audit')">Audit Trail</div>
 </div>
 
 <div class="layout" id="panel-findings">
@@ -280,8 +338,13 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
   <div id="rules-table-container"></div>
 </div>
 
+<div class="audit-panel" id="panel-audit">
+  <div id="audit-list"></div>
+</div>
+
 <script>
 let currentResults = null;
+let currentReviews = {};
 let selectedFile = 'all';
 let selectedSev = 'all';
 let selectedCat = 'all';
@@ -294,6 +357,15 @@ async function fetchResults() {
   return r.json();
 }
 
+async function fetchReviews() {
+  const r = await fetch('/api/reviews');
+  if (!r.ok) return {};
+  const list = await r.json();
+  const map = {};
+  for (const rv of list) map[rv.findingId] = rv;
+  return map;
+}
+
 async function rescan() {
   if (scanning) return;
   scanning = true;
@@ -301,14 +373,34 @@ async function rescan() {
   await fetch('/api/rescan', { method: 'POST' });
 }
 
+async function submitReview(findingId, decision, note) {
+  const r = await fetch('/api/review', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ findingId, decision, reviewer: 'dashboard', note }),
+  });
+  if (!r.ok) { alert('Review failed'); return; }
+  currentReviews = await fetchReviews();
+  renderFindings();
+  renderCoverage();
+  if (document.getElementById('panel-audit').style.display !== 'none') renderAudit();
+}
+
 // ── SSE ──
 function connectSSE() {
   const es = new EventSource('/events');
-  es.addEventListener('scan-complete', (e) => {
+  es.addEventListener('scan-complete', async (e) => {
     currentResults = JSON.parse(e.data);
+    currentReviews = await fetchReviews();
     scanning = false;
     document.getElementById('rescan-btn').textContent = 'Rescan';
     render();
+  });
+  es.addEventListener('review', async () => {
+    currentReviews = await fetchReviews();
+    renderFindings();
+    renderCoverage();
+    if (document.getElementById('panel-audit').style.display !== 'none') renderAudit();
   });
   es.addEventListener('scanning', () => {
     scanning = true;
@@ -335,24 +427,32 @@ function render() {
   if (!currentResults) return;
   const r = currentResults;
 
-  // Gate badge
   const badge = document.getElementById('gate-badge');
   badge.textContent = r.passed ? '✔ Passed' : '✖ Failed';
   badge.className = 'gate-badge ' + (r.passed ? 'pass' : 'fail');
 
-  // Scan time
   document.getElementById('scan-time').textContent =
     'Scanned ' + new Date(r.timestamp).toLocaleTimeString() + ' · ' + r.durationMs + 'ms';
 
-  // Summary counts
   document.getElementById('count-all').textContent = r.totalFindings;
   ['blocker','critical','major','minor','info'].forEach(s => {
     document.getElementById('count-' + s).textContent = r.bySeverity[s] ?? 0;
   });
 
+  renderCoverage();
   renderFiles();
   renderFindings();
   renderRules();
+}
+
+function renderCoverage() {
+  if (!currentResults) return;
+  const allFindings = currentResults.files.flatMap(f => f.findings).filter(fi => !fi.isHotspot);
+  const total = allFindings.length;
+  const reviewed = allFindings.filter(fi => fi.id != null && currentReviews[fi.id]).length;
+  const pct = total === 0 ? 100 : Math.round((reviewed / total) * 100);
+  document.getElementById('coverage-bar').style.width = pct + '%';
+  document.getElementById('coverage-pct').textContent = pct + '%';
 }
 
 function renderFiles() {
@@ -366,8 +466,10 @@ function renderFiles() {
     const name = f.filePath.replace(/\\\\/g,'/').split('/').slice(-2).join('/');
     const active = selectedFile === f.filePath ? 'active' : '';
     const hasF = f.findings.length > 0 ? 'has-findings' : '';
+    const needsReReview = f.findings.some(fi => fi.id != null && currentReviews[fi.id]?.needsReReview);
     html += \`<div class="file-item \${active} \${hasF}" data-path="\${esc(f.filePath)}" onclick="selectFile(this.dataset.path)">
       <span class="file-name" title="\${esc(f.filePath)}">\${esc(name)}</span>
+      \${needsReReview ? '<span class="rereview-badge">!</span>' : ''}
       <span class="file-count">\${f.findings.length}</span>
     </div>\`;
   }
@@ -375,6 +477,7 @@ function renderFiles() {
 }
 
 function renderFindings() {
+  if (!currentResults) return;
   const r = currentResults;
   const search = document.getElementById('search').value.toLowerCase();
   const container = document.getElementById('findings-list');
@@ -403,25 +506,46 @@ function renderFindings() {
   container.innerHTML = findings.map((fi, i) => {
     const fileName = fi._file.replace(/\\\\/g,'/').split('/').slice(-2).join('/');
     const loc = fi.line ? \`\${fileName}:\${fi.line}\` : fileName;
-    return \`<div class="finding-card" data-sev="\${fi.severity}" data-i="\${i}" onclick="toggleFinding(this)">
-      <div class="finding-header">
+    const review = fi.id != null ? currentReviews[fi.id] : null;
+    const reviewedClass = review ? 'reviewed' : '';
+    let reviewBadge = '';
+    if (review) {
+      reviewBadge = \`<span class="review-state-badge \${review.decision}">\${review.decision}</span>\`;
+    }
+    const noteId = 'note-' + i;
+    return \`<div class="finding-card \${reviewedClass}" data-sev="\${fi.severity}" data-i="\${i}" data-fid="\${fi.id ?? ''}">
+      <div class="finding-header" onclick="toggleFinding(\${i})">
         <span class="sev-badge">\${fi.severity}</span>
         <span class="rule-id">\${esc(fi.ruleId)}</span>
         <span class="rule-name">\${esc(fi.ruleName)}</span>
+        \${reviewBadge}
         <span class="finding-loc">\${esc(loc)}</span>
       </div>
       <div class="finding-body" id="fb-\${i}">
         <div class="finding-message">\${esc(fi.message)}</div>
         \${fi.snippet ? \`<div class="finding-snippet">\${esc(fi.snippet)}</div>\` : ''}
         <div class="finding-fix"><strong>Fix:</strong> \${esc(fi.remediation)}</div>
+        \${fi.id != null ? \`<div class="review-actions">
+          <label>Review:</label>
+          <button class="btn-review accept" onclick="doReview(\${fi.id},\${i},'accepted')">Accept</button>
+          <button class="btn-review fp" onclick="doReview(\${fi.id},\${i},'false-positive')">False Positive</button>
+          <button class="btn-review wf" onclick="doReview(\${fi.id},\${i},'wont-fix')">Won't Fix</button>
+          <input class="review-note-input" id="\${noteId}" type="text" placeholder="Optional note…">
+        </div>\` : ''}
+        \${review ? \`<div style="font-size:11px;color:var(--text-muted);margin-top:8px">Last reviewed: <strong>\${review.decision}</strong> by \${esc(review.reviewer)} at \${new Date(review.timestamp).toLocaleString()}\${review.note ? ' — ' + esc(review.note) : ''}</div>\` : ''}
       </div>
     </div>\`;
   }).join('');
 }
 
+function doReview(findingId, idx, decision) {
+  const note = document.getElementById('note-' + idx)?.value || undefined;
+  submitReview(findingId, decision, note);
+}
+
 function renderRules() {
   const r = currentResults;
-  if (!r.rules) return;
+  if (!r || !r.rules) return;
   const container = document.getElementById('rules-table-container');
   const byCategory = {};
   for (const rule of r.rules) {
@@ -444,9 +568,23 @@ function renderRules() {
   container.innerHTML = html || '<p style="color:var(--text-muted);padding:20px 0">No rule data available.</p>';
 }
 
+async function renderAudit() {
+  const r = await fetch('/api/reviews');
+  if (!r.ok) return;
+  const list = await r.json();
+  const container = document.getElementById('audit-list');
+  if (list.length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="icon">📋</div><h3>No reviews yet</h3><p>Review findings to build an audit trail.</p></div>';
+    return;
+  }
+  container.innerHTML = list.map(rv => \`<div class="audit-entry">
+    <div class="audit-meta">\${new Date(rv.timestamp).toLocaleString()} · \${esc(rv.reviewer)} · <code style="font-size:11px">\${esc(rv.filePath)}</code> · rule <code style="font-size:11px">\${esc(rv.ruleId)}</code></div>
+    <span class="audit-decision \${rv.decision}">\${rv.decision}</span>\${rv.note ? \` — \${esc(rv.note)}\` : ''}
+  </div>\`).join('');
+}
+
 // ── Interactions ──
-function toggleFinding(card) {
-  const i = card.dataset.i;
+function toggleFinding(i) {
   const body = document.getElementById('fb-' + i);
   body.classList.toggle('open');
 }
@@ -474,7 +612,9 @@ function applyFilters() { renderFindings(); }
 function switchTab(tab) {
   document.getElementById('panel-findings').style.display = tab === 'findings' ? 'flex' : 'none';
   document.getElementById('panel-rules').style.display = tab === 'rules' ? 'block' : 'none';
+  document.getElementById('panel-audit').style.display = tab === 'audit' ? 'block' : 'none';
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.id === 'tab-' + tab));
+  if (tab === 'audit') renderAudit();
 }
 
 function toggleTheme() {
@@ -496,7 +636,7 @@ function esc(s) {
 // ── Init ──
 (async () => {
   connectSSE();
-  currentResults = await fetchResults();
+  [currentResults, currentReviews] = await Promise.all([fetchResults(), fetchReviews()]);
   if (currentResults) {
     render();
   } else {
