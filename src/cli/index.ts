@@ -11,7 +11,7 @@ import { renderHTML } from '../reporters/html.js';
 import { ALL_RULES } from '../rules/registry.js';
 import { serve } from '../server/index.js';
 
-const VERSION = '0.6.3';
+const VERSION = '0.7.0';
 const BANNER = `SkillScan v${VERSION}`;
 
 const program = new Command();
@@ -39,6 +39,7 @@ program
   .option('--db <path>', 'Path to SQLite database file', '.skillscan.db')
   .option('--server-url <url>', 'Push findings to a remote SkillScan server (connected mode)')
   .option('--token <token>', 'Auth token for remote server')
+  .option('--project <key>', 'Project key for connected mode (created on the server if new)', 'default')
   .action(async (paths: string[], opts) => {
     const cwd = process.cwd();
     const config = loadConfig(cwd, opts.config);
@@ -101,8 +102,8 @@ program
       const token = opts.token ?? process.env.SKILLSCAN_TOKEN ?? '';
       const { pushToServer } = await import('../core/remote.js');
       try {
-        await pushToServer(result.files, { serverUrl: opts.serverUrl, token });
-        console.log(`Findings pushed to ${opts.serverUrl}`);
+        await pushToServer(result.files, { serverUrl: opts.serverUrl, token, project: opts.project });
+        console.log(`Findings pushed to ${opts.serverUrl} (project: ${opts.project})`);
       } catch (err) {
         console.error('Failed to push to server:', err instanceof Error ? err.message : String(err));
       }
@@ -120,6 +121,7 @@ program
   .option('--model <model>', 'LLM model to use')
   .option('--db <path>', 'Path to SQLite database file', '.skillscan.db')
   .option('--token <token>', 'Require Bearer token auth for API endpoints')
+  .option('--project <key>', 'Project key for the locally watched paths', 'default')
   .action(async (paths: string[], opts) => {
     const cwd = process.cwd();
     const config = loadConfig(cwd, opts.config);
@@ -135,7 +137,7 @@ program
 
     const dbPath = resolve(cwd, opts.db ?? '.skillscan.db');
     const token = opts.token ?? process.env.SKILLSCAN_TOKEN;
-    await serve({ config, cwd, port: parseInt(opts.port, 10), dbPath, token });
+    await serve({ config, cwd, port: parseInt(opts.port, 10), dbPath, token, project: opts.project });
   });
 
 program

@@ -3,6 +3,7 @@ import type { FileScanResult } from '../types.js';
 export interface RemoteConfig {
   serverUrl: string;
   token: string;
+  project?: string;
 }
 
 export async function pushToServer(
@@ -16,7 +17,7 @@ export async function pushToServer(
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${remote.token}`,
     },
-    body: JSON.stringify({ files: results }),
+    body: JSON.stringify({ files: results, project: remote.project ?? 'default' }),
   });
   if (!res.ok) {
     throw new Error(`Remote server error ${res.status}: ${await res.text()}`);

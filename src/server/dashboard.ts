@@ -254,6 +254,28 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
 
 .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .6s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* ── Projects landing ── */
+.projects-panel { padding: 28px 24px; max-width: 1100px; margin: 0 auto; }
+.projects-title { font-size: 20px; font-weight: 800; letter-spacing: -.3px; }
+.projects-sub { font-size: 13px; color: var(--text-muted); margin-top: 4px; }
+.projects-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin-top: 20px; }
+.project-card {
+  border-radius: var(--radius); border: 1px solid var(--border); background: var(--surface);
+  padding: 16px 18px; cursor: pointer; transition: border-color .15s, box-shadow .15s;
+}
+.project-card:hover { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.project-card .proj-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+.project-card .proj-name { font-size: 15px; font-weight: 700; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.project-card .proj-key { font-size: 11px; font-family: monospace; color: var(--text-muted); }
+.project-card .proj-stats { display: flex; gap: 18px; }
+.project-card .proj-stat .val { font-size: 20px; font-weight: 800; line-height: 1; }
+.project-card .proj-stat .lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .05em; margin-top: 3px; }
+.project-card .proj-meta { font-size: 11px; color: var(--text-muted); margin-top: 12px; }
+.local-badge { font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 999px; background: var(--accent-glow); color: var(--accent); text-transform: uppercase; letter-spacing: .05em; }
+.crumb { font-size: 13px; color: var(--text-muted); cursor: pointer; font-weight: 600; }
+.crumb:hover { color: var(--accent); }
+.crumb-current { font-size: 13px; font-weight: 700; color: var(--text); }
 </style>
 </head>
 <body>
@@ -266,15 +288,28 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
     </svg>
     SkillScan
   </div>
-  <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(99,102,241,.15);color:var(--accent);letter-spacing:.05em;text-transform:uppercase;">v0.4.0</span>
-  <div id="gate-badge" class="gate-badge">Scanning…</div>
+  <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px;background:rgba(99,102,241,.15);color:var(--accent);letter-spacing:.05em;text-transform:uppercase;">v0.7.0</span>
+  <span id="crumb-wrap" style="display:none;align-items:center;gap:6px;">
+    <span class="crumb" onclick="backToProjects()">Projects</span>
+    <span style="color:var(--text-muted)">/</span>
+    <span class="crumb-current" id="crumb-project"></span>
+  </span>
+  <div id="gate-badge" class="gate-badge" style="display:none">Scanning…</div>
   <div class="header-right">
     <div class="live-dot" id="live-dot" title="Live updates active"></div>
     <span class="scan-time" id="scan-time"></span>
-    <button class="btn btn-primary" onclick="rescan()" id="rescan-btn">Rescan</button>
+    <button class="btn btn-primary" onclick="rescan()" id="rescan-btn" style="display:none">Rescan</button>
     <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">◐</button>
   </div>
 </div>
+
+<div class="projects-panel" id="panel-projects">
+  <div class="projects-title">Projects</div>
+  <div class="projects-sub">Each project holds its own findings, reviews, and quality gate. Push scans into a project with <code>skillscan scan --server-url … --project &lt;key&gt;</code>.</div>
+  <div class="projects-grid" id="projects-grid"></div>
+</div>
+
+<div id="project-view" style="display:none">
 
 <div class="summary-bar" id="summary-bar">
   <div class="sev-card" data-sev="all" onclick="filterSev('all')">
@@ -342,6 +377,8 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; b
   <div id="audit-list"></div>
 </div>
 
+</div><!-- /project-view -->
+
 <script>
 let currentResults = null;
 let currentReviews = {};
@@ -349,21 +386,88 @@ let selectedFile = 'all';
 let selectedSev = 'all';
 let selectedCat = 'all';
 let scanning = false;
+let selectedProject = null;
+let localProjectKey = null;
 
 // ── Data fetching ──
 async function fetchResults() {
-  const r = await fetch('/api/results');
+  const r = await fetch('/api/results?project=' + encodeURIComponent(selectedProject || 'default'));
   if (!r.ok) return null;
   return r.json();
 }
 
 async function fetchReviews() {
-  const r = await fetch('/api/reviews');
+  const url = '/api/reviews' + (selectedProject ? '?project=' + encodeURIComponent(selectedProject) : '');
+  const r = await fetch(url);
   if (!r.ok) return {};
   const list = await r.json();
   const map = {};
   for (const rv of list) map[rv.findingId] = rv;
   return map;
+}
+
+async function fetchProjects() {
+  const r = await fetch('/api/projects');
+  if (!r.ok) return null;
+  return r.json();
+}
+
+// ── Projects landing ──
+async function renderProjects() {
+  const data = await fetchProjects();
+  if (!data) return;
+  localProjectKey = data.localProject;
+  const grid = document.getElementById('projects-grid');
+  grid.innerHTML = data.projects.map(p => {
+    const covPct = Math.round(p.reviewCoverage * 100);
+    const isLocal = p.key === data.localProject;
+    return \`<div class="project-card" onclick="openProject('\${esc(p.key)}')">
+      <div class="proj-head">
+        <span class="gate-badge \${p.passed ? 'pass' : 'fail'}">\${p.passed ? 'Passed' : 'Failed'}</span>
+        <span class="proj-name">\${esc(p.name)}</span>
+        \${isLocal ? '<span class="local-badge">local</span>' : ''}
+      </div>
+      <div class="proj-stats">
+        <div class="proj-stat"><div class="val">\${p.totalFindings}</div><div class="lbl">Findings</div></div>
+        <div class="proj-stat"><div class="val" style="color:\${p.unreviewedFindings > 0 ? 'var(--fail)' : 'var(--pass)'}">\${p.unreviewedFindings}</div><div class="lbl">Unreviewed</div></div>
+        <div class="proj-stat"><div class="val" style="color:var(--pass)">\${covPct}%</div><div class="lbl">Coverage</div></div>
+      </div>
+      <div class="proj-meta"><code style="font-size:10px">\${esc(p.key)}</code>\${p.lastScanAt ? ' · scanned ' + new Date(p.lastScanAt).toLocaleString() : ' · never scanned'}</div>
+    </div>\`;
+  }).join('');
+}
+
+async function openProject(key) {
+  selectedProject = key;
+  selectedFile = 'all';
+  document.getElementById('panel-projects').style.display = 'none';
+  document.getElementById('project-view').style.display = 'block';
+  document.getElementById('crumb-wrap').style.display = 'inline-flex';
+  document.getElementById('crumb-project').textContent = key;
+  document.getElementById('gate-badge').style.display = '';
+  document.getElementById('rescan-btn').style.display = key === localProjectKey ? '' : 'none';
+  [currentResults, currentReviews] = await Promise.all([fetchResults(), fetchReviews()]);
+  if (currentResults) {
+    render();
+  } else {
+    document.getElementById('findings-list').innerHTML =
+      '<div class="empty-state"><div class="icon">📭</div><h3>No scan data yet</h3><p>Push a scan into this project with <code>--server-url … --project ' + esc(key) + '</code></p></div>';
+    const badge = document.getElementById('gate-badge');
+    badge.textContent = 'No data';
+    badge.className = 'gate-badge';
+  }
+}
+
+function backToProjects() {
+  selectedProject = null;
+  currentResults = null;
+  document.getElementById('project-view').style.display = 'none';
+  document.getElementById('crumb-wrap').style.display = 'none';
+  document.getElementById('gate-badge').style.display = 'none';
+  document.getElementById('rescan-btn').style.display = 'none';
+  document.getElementById('panel-projects').style.display = 'block';
+  document.getElementById('scan-time').textContent = '';
+  renderProjects();
 }
 
 async function rescan() {
@@ -390,19 +494,29 @@ async function submitReview(findingId, decision, note) {
 function connectSSE() {
   const es = new EventSource('/events');
   es.addEventListener('scan-complete', async (e) => {
-    currentResults = JSON.parse(e.data);
+    const payload = JSON.parse(e.data);
+    if (selectedProject === null) {
+      renderProjects();
+      return;
+    }
+    if (payload.project !== selectedProject) return;
+    currentResults = payload;
     currentReviews = await fetchReviews();
     scanning = false;
     document.getElementById('rescan-btn').textContent = 'Rescan';
     render();
   });
   es.addEventListener('review', async () => {
+    if (selectedProject === null) { renderProjects(); return; }
     currentReviews = await fetchReviews();
     renderFindings();
     renderCoverage();
     if (document.getElementById('panel-audit').style.display !== 'none') renderAudit();
   });
-  es.addEventListener('scanning', () => {
+  es.addEventListener('scanning', (e) => {
+    let proj = null;
+    try { proj = JSON.parse(e.data).project; } catch {}
+    if (selectedProject === null || proj !== selectedProject) return;
     scanning = true;
     document.getElementById('rescan-btn').innerHTML = '<span class="spinner"></span>';
     const badge = document.getElementById('gate-badge');
@@ -569,7 +683,7 @@ function renderRules() {
 }
 
 async function renderAudit() {
-  const r = await fetch('/api/reviews');
+  const r = await fetch('/api/reviews' + (selectedProject ? '?project=' + encodeURIComponent(selectedProject) : ''));
   if (!r.ok) return;
   const list = await r.json();
   const container = document.getElementById('audit-list');
@@ -636,18 +750,7 @@ function esc(s) {
 // ── Init ──
 (async () => {
   connectSSE();
-  [currentResults, currentReviews] = await Promise.all([fetchResults(), fetchReviews()]);
-  if (currentResults) {
-    render();
-  } else {
-    const badge = document.getElementById('gate-badge');
-    badge.textContent = 'Scanning...';
-    badge.className = 'gate-badge';
-    badge.style.background = 'rgba(99,102,241,.15)';
-    badge.style.color = 'var(--accent)';
-    document.getElementById('findings-list').innerHTML =
-      \`<div class="empty-state"><div class="icon" style="font-size:32px"><span class="spinner" style="width:32px;height:32px;border-width:3px"></span></div><h3 style="margin-top:16px">Running initial scan...</h3><p>LLM enrichment may take up to 30 seconds.</p></div>\`;
-  }
+  await renderProjects();
 })();
 </script>
 </body>
