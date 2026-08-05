@@ -58,6 +58,7 @@ jobs:
   publish-docker:
     runs-on: ubuntu-latest
     needs: publish-npm
+    continue-on-error: true  # skips gracefully when DOCKER_USERNAME/DOCKER_PASSWORD secrets are not yet configured
 
     steps:
       - uses: actions/checkout@v4
